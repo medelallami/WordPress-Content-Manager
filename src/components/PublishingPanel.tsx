@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -6,8 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Upload, CheckCircle2 } from 'lucide-react';
-import { loadFromLocalStorage, publishToWordPress, ScrapedContent, WordPressCredentials } from '@/lib/wordpress';
+import { loadFromLocalStorage, publishToWordPress, ScrapedContent, WordPressCredentials, saveToLocalStorage } from '@/lib/wordpress';
 import { toast } from 'sonner';
+
+interface PublishedPost {
+  postId: number;
+  title: string;
+  date: string;
+  url: string;
+}
 
 export default function PublishingPanel() {
   const [publishing, setPublishing] = useState(false);
@@ -36,6 +43,7 @@ export default function PublishingPanel() {
 
     let successCount = 0;
     let failedCount = 0;
+    const history = loadFromLocalStorage<PublishedPost[]>('publishing_history') || [];
 
     try {
       for (let i = 0; i < selected.length; i++) {
@@ -49,12 +57,22 @@ export default function PublishingPanel() {
             status,
           });
 
-          if (result.success) {
+          if (result.success && result.id && result.link) {
             successCount++;
             toast.success(`Published: ${content.title}`);
+            
+            const newHistoryEntry: PublishedPost = {
+              postId: result.id,
+              title: content.title,
+              date: new Date().toISOString(),
+              url: result.link,
+            };
+            history.push(newHistoryEntry);
+            saveToLocalStorage('publishing_history', history);
+
           } else {
             failedCount++;
-            toast.error(`Failed: ${content.title}`);
+            toast.error(`Failed to publish: ${content.title}`);
           }
         } catch (error) {
           failedCount++;
@@ -67,7 +85,7 @@ export default function PublishingPanel() {
 
       toast.success(`Publishing complete! ${successCount} succeeded, ${failedCount} failed`);
     } catch (error) {
-      toast.error('Error during publishing process');
+      toast.error('An unexpected error occurred during the publishing process.');
     } finally {
       setPublishing(false);
     }
@@ -78,13 +96,13 @@ export default function PublishingPanel() {
       <CardHeader>
         <CardTitle>Publish to WordPress</CardTitle>
         <CardDescription>
-          Publish reformed content to your WordPress site
+          Publish reformed content to your WordPress site.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Alert>
           <AlertDescription>
-            Only content that has been reformed by ChatGPT will be published. Make sure to process your content first.
+            Only content that has been rewritten by the AI will be published. Make sure to process your content first.
           </AlertDescription>
         </Alert>
 

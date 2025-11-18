@@ -3,9 +3,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import WordPressConnection from '@/components/WordPressConnection';
 import ContentFetcher from '@/components/ContentFetcher';
 import ContentDashboard from '@/components/ContentDashboard';
-import ChatGPTPanel from '@/components/ChatGPTPanel';
+import AIProviderPanel from '@/components/AIProviderPanel';
 import ContentPreview from '@/components/ContentPreview';
 import PublishingPanel from '@/components/PublishingPanel';
+import PublishingHistory from '@/components/PublishingHistory';
 import { ScrapedContent } from '@/lib/wordpress';
 import { FileText } from 'lucide-react';
 
@@ -30,41 +31,46 @@ export default function Index() {
 
         {/* Main Content */}
         <Tabs defaultValue="setup" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="setup">Setup</TabsTrigger>
             <TabsTrigger value="fetch">Fetch</TabsTrigger>
             <TabsTrigger value="library">Library</TabsTrigger>
             <TabsTrigger value="rewrite">Rewrite</TabsTrigger>
             <TabsTrigger value="publish">Publish</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="setup" className="space-y-6">
+          <TabsContent value="setup" className="space-y-6 pt-4">
             <WordPressConnection />
           </TabsContent>
 
-          <TabsContent value="fetch" className="space-y-6">
+          <TabsContent value="fetch" className="space-y-6 pt-4">
             <ContentFetcher />
           </TabsContent>
 
-          <TabsContent value="library" className="space-y-6">
+          <TabsContent value="library" className="space-y-6 pt-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ContentDashboard onPreview={setPreviewContent} />
               <ContentPreview content={previewContent} />
             </div>
           </TabsContent>
 
-          <TabsContent value="rewrite" className="space-y-6">
+          <TabsContent value="rewrite" className="space-y-6 pt-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ChatGPTPanel />
+              <AIProviderPanel />
               <ContentPreview content={previewContent} />
             </div>
           </TabsContent>
 
-          <TabsContent value="publish" className="space-y-6">
+          <TabsContent value="publish" className="space-y-6 pt-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <PublishingPanel />
               <ContentPreview content={previewContent} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-6 pt-4">
+            <PublishingHistory />
           </TabsContent>
         </Tabs>
 
